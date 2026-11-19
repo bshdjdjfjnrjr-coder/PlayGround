@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <meta name="theme-color" content="#07100f" />
+  <title>Legend of the Shadow World</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js"}}</script>
+</head>
+<body>
+  <main id="game-shell">
+    <canvas id="game-canvas" aria-label="3D adventure game"></canvas>
+    <div class="vignette"></div>
+    <div class="grain"></div>
+
+    <section id="main-menu" class="screen visible">
+      <div class="menu-top"><span class="brand-mark">✦</span><span>NOCTURNE<br><small>INTERACTIVE</small></span><span class="top-right">AN ORIGINAL ADVENTURE <i>✳</i> 2026</span></div>
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="pulse-dot"></span> THE VEIL IS BREAKING</p>
+        <h1>LEGEND OF THE<br><em>SHADOW</em> WORLD</h1>
+        <p class="hero-desc">When the last light fades, one soul must cross the veil.<br>Run toward the unknown. Become its legend.</p>
+        <div class="menu-actions">
+          <button class="primary-btn" id="play-btn"><span>BEGIN YOUR JOURNEY</span><b>↗</b></button>
+          <button class="text-btn" id="levels-btn">CHOOSE A CHAPTER <span>＋</span></button>
+          <button class="text-btn" id="settings-btn">SETTINGS <span>⚙</span></button>
+        </div>
+      </div>
+      <div class="menu-bottom"><span>01 — 03 <i>CHAPTERS</i></span><span>WASD / ARROWS <i>TO MOVE</i></span><span>© NOCTURNE STUDIO</span></div>
+      <div class="chapter-preview"><span>01</span><div><b>THE FORGOTTEN GROVE</b><small>WHERE THE VEIL FIRST THINNED</small></div><i>→</i></div>
+    </section>
+
+    <section id="level-screen" class="screen panel-screen">
+      <button class="close-btn" data-back="main-menu">×</button>
+      <p class="eyebrow">CHOOSE YOUR PATH</p><h2>THE CHRONICLES</h2>
+      <div id="level-cards" class="level-cards"></div>
+      <p class="panel-foot">Complete each chapter to reveal what lies beyond.</p>
+    </section>
+
+    <section id="settings-screen" class="screen panel-screen">
+      <button class="close-btn" data-back="main-menu">×</button>
+      <p class="eyebrow">MAKE IT YOURS</p><h2>SETTINGS</h2>
+      <div class="setting-row"><div><b>Sound effects</b><small>Combat, powers and discoveries</small></div><button class="toggle on" id="sound-toggle">ON</button></div>
+      <div class="setting-row"><div><b>Camera shake</b><small>Impact feedback</small></div><button class="toggle on" id="shake-toggle">ON</button></div>
+      <div class="setting-row"><div><b>Render quality</b><small>Visual detail and shadows</small></div><select id="quality-select"><option value="high">High</option><option value="balanced">Balanced</option><option value="low">Performance</option></select></div>
+      <div class="controls-note"><span>⌨</span><div><b>FIELD GUIDE</b><small>WASD move · SPACE jump · J strike · C slide<br>SHIFT dash · Q phase · E storm · ESC pause · Double-jump</small></div></div>
+    </section>
+
+    <section id="hud" class="hud hidden">
+      <header class="hud-top">
+        <div class="chapter-label"><button id="hud-menu" aria-label="Pause">Ⅱ</button><div><small>CHAPTER <span id="chapter-number">01</span></small><b id="chapter-name">THE FORGOTTEN GROVE</b></div></div>
+        <div class="objective"><small>YOUR DESTINY</small><b id="objective-text">Reach the Veil Gate</b><div class="objective-line"><i id="objective-progress"></i></div></div>
+        <div class="hud-right"><div class="collect-count"><span>✦</span><b id="shard-count">00</b><small>SHARDS</small></div><button id="pause-btn" aria-label="Pause">Ⅱ</button></div>
+      </header>
+      <div class="hud-bottom">
+        <div class="vitals"><div class="heart">♥</div><div class="health-track"><div id="health-fill"></div><small>VITALITY</small></div><div class="score-label"><b id="score-count">0000</b><small>SCORE</small></div></div>
+        <div class="power-list"><button class="power-chip" id="power-dash"><span>➤</span><small>SHIFT</small><b>VEIL DASH</b><i class="cooldown"></i></button><button class="power-chip" id="power-shield"><span>◉</span><small>Q</small><b>PHASE</b><i class="cooldown"></i></button><button class="power-chip" id="power-lightning"><span>ϟ</span><small>E</small><b>STORM</b><i class="cooldown"></i></button></div>
+      </div>
+      <div id="toast" class="toast"></div>
+      <div class="boss-bar hidden" id="boss-bar"><small>THE VEIL WARDEN</small><div><i id="boss-health"></i></div></div>
+    </section>
+
+    <section id="pause-screen" class="screen modal-screen">
+      <p class="eyebrow">CATCH YOUR BREATH</p><h2>PAUSED</h2><p class="modal-copy">The shadows can wait.</p>
+      <button class="primary-btn modal-action" id="resume-btn"><span>CONTINUE JOURNEY</span><b>↗</b></button>
+      <button class="text-btn" id="restart-btn">RESTART CHAPTER <span>↻</span></button>
+      <button class="text-btn" id="quit-btn">RETURN TO TITLE <span>↖</span></button>
+    </section>
+
+    <section id="result-screen" class="screen modal-screen">
+      <p class="eyebrow" id="result-eyebrow">THE VEIL REMEMBERS</p><h2 id="result-title">CHAPTER CLEARED</h2>
+      <p class="modal-copy" id="result-copy">A new path opens in the darkness.</p>
+      <div class="result-score"><span>SHARDS FOUND</span><b id="result-shards">00 / 00</b><span>FINAL SCORE</span><b id="result-score">0000</b></div>
+      <button class="primary-btn modal-action" id="result-next"><span>CONTINUE</span><b>↗</b></button>
+      <button class="text-btn" id="result-title-btn">RETURN TO TITLE <span>↖</span></button>
+    </section>
+
+    <div class="mobile-controls" id="mobile-controls">
+      <div class="move-pad joystick" id="joystick" aria-label="Movement joystick"><div class="joy-base"><i id="joy-knob"></i></div></div>
+      <div class="action-pad"><button data-action="attack" class="attack-touch">✦<small>STRIKE</small></button><button data-action="jump" class="jump-touch">↑<small>JUMP</small></button><button data-action="slide">⌄<small>SLIDE</small></button><button data-action="dash">➤<small>DASH</small></button><button data-action="shield">◉<small>PHASE</small></button><button data-action="lightning">ϟ<small>STORM</small></button></div>
+    </div>
+    <div id="loading-screen" class="loading-screen"><div class="loading-logo">✦</div><div class="loading-title">THE SHADOW WORLD</div><div class="loading-track"><i></i></div><small>WEAVING THE VEIL</small></div>
+  </main>
+  <script type="module" src="game.js"></script>
+</body>
+</html>
